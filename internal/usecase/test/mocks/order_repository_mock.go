@@ -39,13 +39,13 @@ func (m *OrderRepositoryMock) FindByID(id string) (*entity.Order, error) {
 	if m.FindError != nil {
 		return nil, m.FindError
 	}
-	
+
 	for _, order := range m.orders {
 		if order.ID == id {
 			return order, nil
 		}
 	}
-	
+
 	return nil, entity.ErrOrderNotFound
 }
 
@@ -53,14 +53,14 @@ func (m *OrderRepositoryMock) Update(order *entity.Order) error {
 	if m.UpdateError != nil {
 		return m.UpdateError
 	}
-	
+
 	for i, o := range m.orders {
 		if o.ID == order.ID {
 			m.orders[i] = order
 			return nil
 		}
 	}
-	
+
 	return entity.ErrOrderNotFound
 }
 
@@ -68,14 +68,14 @@ func (m *OrderRepositoryMock) Delete(id string) error {
 	if m.DeleteError != nil {
 		return m.DeleteError
 	}
-	
+
 	for i, order := range m.orders {
 		if order.ID == id {
 			m.orders = append(m.orders[:i], m.orders[i+1:]...)
 			return nil
 		}
 	}
-	
+
 	return entity.ErrOrderNotFound
 }
 

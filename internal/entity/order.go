@@ -8,8 +8,8 @@ import (
 )
 
 var (
-	ErrInvalidPrice = errors.New("invalid price")
-	ErrInvalidTax   = errors.New("invalid tax")
+	ErrInvalidPrice  = errors.New("invalid price")
+	ErrInvalidTax    = errors.New("invalid tax")
 	ErrOrderNotFound = errors.New("order not found")
 )
 

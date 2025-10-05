@@ -71,5 +71,3 @@ func (s *OrderService) ListOrders(ctx context.Context, req *pb.ListOrdersRequest
 		Orders: pbOrders,
 	}, nil
 }
-
-

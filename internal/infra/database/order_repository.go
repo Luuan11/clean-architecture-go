@@ -49,7 +49,7 @@ func (r *OrderRepository) FindByID(id string) (*entity.Order, error) {
 	var order entity.Order
 	err := r.Db.QueryRow("SELECT id, price, tax, final_price, created_at, updated_at FROM orders WHERE id = ?", id).
 		Scan(&order.ID, &order.Price, &order.Tax, &order.FinalPrice, &order.CreatedAt, &order.UpdatedAt)
-	
+
 	if err == sql.ErrNoRows {
 		return nil, entity.ErrOrderNotFound
 	}
