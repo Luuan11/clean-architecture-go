@@ -46,23 +46,41 @@ func main() {
 
 	createOrderUseCase := usecase.NewCreateOrderUseCase(orderRepository)
 	listOrdersUseCase := usecase.NewListOrdersUseCase(orderRepository)
+	getOrderByIDUseCase := usecase.NewGetOrderByIDUseCase(orderRepository)
+	updateOrderUseCase := usecase.NewUpdateOrderUseCase(orderRepository)
+	deleteOrderUseCase := usecase.NewDeleteOrderUseCase(orderRepository)
 
-	go startRESTServer(createOrderUseCase, listOrdersUseCase)
-	go startGRPCServer(createOrderUseCase, listOrdersUseCase)
-	startGraphQLServer(createOrderUseCase, listOrdersUseCase)
+	go startRESTServer(createOrderUseCase, listOrdersUseCase, getOrderByIDUseCase, updateOrderUseCase, deleteOrderUseCase)
+	go startGRPCServer(createOrderUseCase, listOrdersUseCase, getOrderByIDUseCase, updateOrderUseCase, deleteOrderUseCase)
+	startGraphQLServer(createOrderUseCase, listOrdersUseCase, getOrderByIDUseCase, updateOrderUseCase, deleteOrderUseCase)
 }
 
-func startRESTServer(createOrderUseCase *usecase.CreateOrderUseCase, listOrdersUseCase *usecase.ListOrdersUseCase) {
+func startRESTServer(
+	createOrderUseCase *usecase.CreateOrderUseCase,
+	listOrdersUseCase *usecase.ListOrdersUseCase,
+	getOrderByIDUseCase *usecase.GetOrderByIDUseCase,
+	updateOrderUseCase *usecase.UpdateOrderUseCase,
+	deleteOrderUseCase *usecase.DeleteOrderUseCase,
+) {
 	port := getEnv("REST_PORT", "8080")
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
-	orderHandler := webserver.NewWebOrderHandler(createOrderUseCase, listOrdersUseCase)
+	orderHandler := webserver.NewWebOrderHandler(
+		createOrderUseCase,
+		listOrdersUseCase,
+		getOrderByIDUseCase,
+		updateOrderUseCase,
+		deleteOrderUseCase,
+	)
 
 	r.Post("/order", orderHandler.CreateOrder)
 	r.Get("/order", orderHandler.ListOrders)
+	r.Get("/order/{id}", orderHandler.GetOrderByID)
+	r.Put("/order/{id}", orderHandler.UpdateOrder)
+	r.Delete("/order/{id}", orderHandler.DeleteOrder)
 
 	log.Printf("REST server listening on port %s", port)
 	if err := http.ListenAndServe(":"+port, r); err != nil {
@@ -70,7 +88,13 @@ func startRESTServer(createOrderUseCase *usecase.CreateOrderUseCase, listOrdersU
 	}
 }
 
-func startGRPCServer(createOrderUseCase *usecase.CreateOrderUseCase, listOrdersUseCase *usecase.ListOrdersUseCase) {
+func startGRPCServer(
+	createOrderUseCase *usecase.CreateOrderUseCase,
+	listOrdersUseCase *usecase.ListOrdersUseCase,
+	getOrderByIDUseCase *usecase.GetOrderByIDUseCase,
+	updateOrderUseCase *usecase.UpdateOrderUseCase,
+	deleteOrderUseCase *usecase.DeleteOrderUseCase,
+) {
 	port := getEnv("GRPC_PORT", "50051")
 
 	lis, err := net.Listen("tcp", ":"+port)
@@ -79,7 +103,13 @@ func startGRPCServer(createOrderUseCase *usecase.CreateOrderUseCase, listOrdersU
 	}
 
 	grpcServer := grpc.NewServer()
-	orderService := service.NewOrderService(createOrderUseCase, listOrdersUseCase)
+	orderService := service.NewOrderService(
+		createOrderUseCase,
+		listOrdersUseCase,
+		getOrderByIDUseCase,
+		updateOrderUseCase,
+		deleteOrderUseCase,
+	)
 	pb.RegisterOrderServiceServer(grpcServer, orderService)
 
 	reflection.Register(grpcServer)
@@ -90,10 +120,22 @@ func startGRPCServer(createOrderUseCase *usecase.CreateOrderUseCase, listOrdersU
 	}
 }
 
-func startGraphQLServer(createOrderUseCase *usecase.CreateOrderUseCase, listOrdersUseCase *usecase.ListOrdersUseCase) {
+func startGraphQLServer(
+	createOrderUseCase *usecase.CreateOrderUseCase,
+	listOrdersUseCase *usecase.ListOrdersUseCase,
+	getOrderByIDUseCase *usecase.GetOrderByIDUseCase,
+	updateOrderUseCase *usecase.UpdateOrderUseCase,
+	deleteOrderUseCase *usecase.DeleteOrderUseCase,
+) {
 	port := getEnv("GRAPHQL_PORT", "8081")
 
-	resolver := graph.NewOrderResolver(createOrderUseCase, listOrdersUseCase)
+	resolver := graph.NewOrderResolver(
+		createOrderUseCase,
+		listOrdersUseCase,
+		getOrderByIDUseCase,
+		updateOrderUseCase,
+		deleteOrderUseCase,
+	)
 	schema, err := resolver.BuildSchema()
 	if err != nil {
 		log.Fatalf("Failed to build GraphQL schema: %v", err)

@@ -29,7 +29,42 @@ message ListOrdersResponse {
   repeated Order orders = 1;
 }
 
+message GetOrderByIDRequest {
+  string id = 1;
+}
+
+message GetOrderByIDResponse {
+  string id = 1;
+  double price = 2;
+  double tax = 3;
+  double final_price = 4;
+}
+
+message UpdateOrderRequest {
+  string id = 1;
+  double price = 2;
+  double tax = 3;
+}
+
+message UpdateOrderResponse {
+  string id = 1;
+  double price = 2;
+  double tax = 3;
+  double final_price = 4;
+}
+
+message DeleteOrderRequest {
+  string id = 1;
+}
+
+message DeleteOrderResponse {
+  bool success = 1;
+}
+
 service OrderService {
   rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse);
   rpc ListOrders(ListOrdersRequest) returns (ListOrdersResponse);
+  rpc GetOrderByID(GetOrderByIDRequest) returns (GetOrderByIDResponse);
+  rpc UpdateOrder(UpdateOrderRequest) returns (UpdateOrderResponse);
+  rpc DeleteOrder(DeleteOrderRequest) returns (DeleteOrderResponse);
 }
