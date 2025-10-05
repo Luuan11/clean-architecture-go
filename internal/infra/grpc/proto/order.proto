@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "github.com/luuan11/clean-architecture/internal/infra/grpc/pb";
+
+message CreateOrderRequest {
+  double price = 1;
+  double tax = 2;
+}
+
+message CreateOrderResponse {
+  string id = 1;
+  double price = 2;
+  double tax = 3;
+  double final_price = 4;
+}
+
+message ListOrdersRequest {}
+
+message Order {
+  string id = 1;
+  double price = 2;
+  double tax = 3;
+  double final_price = 4;
+}
+
+message ListOrdersResponse {
+  repeated Order orders = 1;
+}
+
+service OrderService {
+  rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse);
+  rpc ListOrders(ListOrdersRequest) returns (ListOrdersResponse);
+}
