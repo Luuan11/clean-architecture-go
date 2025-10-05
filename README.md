@@ -1,296 +1,157 @@
-# Clean Architecture - Order Management System
+# Clean Architecture - Order Management
 
-Sistema de gerenciamento de pedidos (orders) implementado com Clean Architecture em Go, oferecendo três interfaces de comunicação: REST API, gRPC e GraphQL.
+[![Go Version](https://img.shields.io/badge/Go-1.21+-blue.svg)](https://golang.org)
+[![MySQL](https://img.shields.io/badge/MySQL-8.0-orange.svg)](https://www.mysql.com)
+[![Docker](https://img.shields.io/badge/Docker-Supported-blue.svg)](https://docker.com)
+[![gRPC](https://img.shields.io/badge/gRPC-Supported-green.svg)](https://grpc.io)
+[![GraphQL](https://img.shields.io/badge/GraphQL-Supported-pink.svg)](https://graphql.org)
+
+### Sistema de Gerenciamento de Pedidos com Clean Architecture
+
+### 💬 Sobre: 
+API completa de gerenciamento de orders implementada em Go seguindo os princípios da Clean Architecture, oferecendo três interfaces de comunicação distintas:
+```plaintext
+- CRUD completo de Orders
+- REST API (JSON/HTTP)
+- gRPC (Protocol Buffers)
+- GraphQL (Query Language)
+- Persistência MySQL
+- Docker Compose para infraestrutura
+- Testes unitários com 81% de cobertura
+```
+
+### ✨ Executando:
+
+#### Via Docker Compose (Recomendado):
+```shell
+❯ docker-compose up --build
+```
+
+#### Via binário local:
+```shell
+❯ go run cmd/server/main.go
+```
+
+#### Parâmetros de configuração:
+```plaintext
+DB_HOST         Endereço do MySQL (padrão: localhost)
+DB_PORT         Porta do MySQL (padrão: 3306)
+DB_USER         Usuário do banco (padrão: root)
+DB_PASSWORD     Senha do banco (padrão: root)
+DB_NAME         Nome do banco (padrão: orders)
+REST_PORT       Porta REST API (padrão: 8080)
+GRPC_PORT       Porta gRPC (padrão: 50051)
+GRAPHQL_PORT    Porta GraphQL (padrão: 8081)
+```
+
+#### Exemplo de uso:
+```shell
+❯ curl -X POST http://localhost:8080/order -d '{"price":100,"tax":10}'
+❯ curl http://localhost:8080/order
+❯ curl http://localhost:8080/order/{id}
+```
 
 ## 🏗️ Arquitetura
 
-Este projeto segue os princípios da Clean Architecture:
-
 ```
+clean-architecture/
 ├── cmd/
-│   └── server/           # Aplicação principal
+│   └── server/
+│       └── main.go              # Entry point da aplicação
 ├── internal/
-│   ├── entity/           # Entidades de domínio
-│   ├── usecase/          # Casos de uso (regras de negócio)
-│   └── infra/            # Infraestrutura
-│       ├── database/     # Repositórios
-│       ├── grpc/         # Servidor gRPC
-│       ├── graphql/      # Servidor GraphQL
-│       └── web/          # Servidor REST
-└── sql/
-    └── migrations/       # Migrações do banco de dados
+│   ├── entity/
+│   │   ├── order.go             # Entidade de domínio
+│   │   └── interface.go         # Contratos do repositório
+│   ├── usecase/
+│   │   ├── create_order.go      # Caso de uso: Criar
+│   │   ├── list_orders.go       # Caso de uso: Listar
+│   │   ├── get_order_by_id.go   # Caso de uso: Buscar por ID
+│   │   ├── update_order.go      # Caso de uso: Atualizar
+│   │   ├── delete_order.go      # Caso de uso: Deletar
+│   │   └── test/                # Testes unitários (81% coverage)
+│   └── infra/
+│       ├── database/
+│       │   └── order_repository.go    # Implementação MySQL
+│       ├── grpc/
+│       │   ├── proto/                 # Definições protobuf
+│       │   └── service/               # Serviços gRPC
+│       ├── graphql/
+│       │   └── graph/                 # Resolvers GraphQL
+│       └── web/
+│           └── webserver/             # Handlers REST
+├── sql/
+│   └── migrations/
+│       └── 001_create_orders_table.sql
+├── docker-compose.yml           # Orquestração Docker
+├── Dockerfile                   # Multi-stage build
+├── api.http                     # Exemplos de requisições
+└── README.md                    # Esta documentação
 ```
 
-## 🚀 Tecnologias Utilizadas
+## 🐳 Docker
 
-- **Go 1.21+**
-- **MySQL 8.0**
-- **gRPC** - Comunicação entre serviços
-- **GraphQL** - API query language
-- **REST API** - HTTP/JSON
-- **Docker & Docker Compose** - Containerização
-- **Protocol Buffers** - Serialização de dados
-
-## 📋 Pré-requisitos
-
-- [Go 1.21+](https://golang.org/dl/)
-- [Docker](https://www.docker.com/get-started)
-- [Docker Compose](https://docs.docker.com/compose/install/)
-- [Protocol Buffers Compiler (protoc)](https://grpc.io/docs/protoc-installation/)
-
-## 🔧 Instalação e Configuração
-
-### 1. Clone o repositório
-
+### Build da Imagem
 ```bash
-git clone <repository-url>
-cd clean-architecture
+docker build -t clean-architecture .
 ```
 
-### 2. Configurar variáveis de ambiente
+## ⭐ APIs Disponíveis
 
-O arquivo `.env` já está configurado com valores padrão:
-
-```env
-DB_HOST=localhost
-DB_PORT=3306
-DB_USER=root
-DB_PASSWORD=root
-DB_NAME=orders
-
-REST_PORT=8080
-GRPC_PORT=50051
-GRAPHQL_PORT=8081
-```
-
-### 3. Gerar código Protocol Buffers
-
-**No Linux/Mac:**
+### REST API (Port 8080)
 ```bash
-chmod +x scripts/generate-proto.sh
-./scripts/generate-proto.sh
+POST   /order          # Criar order
+GET    /order          # Listar orders
+GET    /order/{id}     # Buscar por ID
+PUT    /order/{id}     # Atualizar order
+DELETE /order/{id}     # Deletar order
 ```
 
-**No Windows:**
-```bash
-scripts\generate-proto.bat
-```
-
-**Ou usando Make:**
-```bash
-make proto
-```
-
-### 4. Instalar dependências
-
-```bash
-go mod download
-go mod tidy
-```
-
-**Ou usando Make:**
-```bash
-make deps
-```
-
-## 🐳 Executando com Docker
-
-A forma mais fácil de executar o projeto é usando Docker Compose:
-
-```bash
-docker-compose up -d
-```
-
-Isso irá:
-1. Criar o banco de dados MySQL
-2. Executar as migrações
-3. Iniciar a aplicação
-
-Para visualizar os logs:
-```bash
-docker-compose logs -f
-```
-
-Para parar os containers:
-```bash
-docker-compose down
-```
-
-**Ou usando Make:**
-```bash
-make docker-up      # Subir containers
-make docker-logs    # Ver logs
-make docker-down    # Parar containers
-```
-
-## 💻 Executando Localmente (sem Docker)
-
-### 1. Inicie o MySQL
-
-Certifique-se de ter o MySQL rodando localmente ou use apenas o container do MySQL:
-
-```bash
-docker-compose up -d mysql
-```
-
-### 2. Execute as migrações
-
-```bash
-mysql -h localhost -u root -proot orders < sql/migrations/001_create_orders_table.sql
-```
-
-### 3. Execute a aplicação
-
-```bash
-go run cmd/server/main.go
-```
-
-**Ou usando Make:**
-```bash
-make run
-```
-
-## 📡 Portas dos Serviços
-
-| Serviço  | Porta | Endpoint                        |
-|----------|-------|---------------------------------|
-| REST API | 8080  | http://localhost:8080/order     |
-| gRPC     | 50051 | localhost:50051                 |
-| GraphQL  | 8081  | http://localhost:8081/graphql   |
-
-## 📚 Documentação das APIs
-
-### REST API
-
-#### Criar Order (POST)
-```bash
-POST http://localhost:8080/order
-Content-Type: application/json
-
-{
-  "price": 100.50,
-  "tax": 10.05
-}
-```
-
-#### Listar Orders (GET)
-```bash
-GET http://localhost:8080/order
-```
-
-### GraphQL
-
-Acesse o GraphiQL em: http://localhost:8081/graphql
-
-#### Criar Order (Mutation)
+### GraphQL (Port 8081)
 ```graphql
+# Queries
+query {
+  listOrders { id price tax final_price }
+  getOrder(id: "uuid") { id price tax final_price }
+}
+
+# Mutations
 mutation {
-  createOrder(price: 150.75, tax: 15.08) {
-    id
-    price
-    tax
-    final_price
-  }
+  createOrder(price: 100.0, tax: 10.0) { id price tax final_price }
+  updateOrder(id: "uuid", price: 200.0, tax: 20.0) { id price tax final_price }
+  deleteOrder(id: "uuid")
 }
 ```
 
-#### Listar Orders (Query)
-```graphql
-{
-  listOrders {
-    id
-    price
-    tax
-    final_price
-  }
-}
-```
+**GraphiQL**: http://localhost:8081/graphql
 
-### gRPC
-
-Para testar o gRPC, você pode usar [grpcurl](https://github.com/fullstorydev/grpcurl):
-
-#### Listar serviços disponíveis
+### gRPC (Port 50051)
 ```bash
+# Listar serviços
 grpcurl -plaintext localhost:50051 list
+
+# Criar order
+grpcurl -plaintext -d '{"price": 100, "tax": 10}' \
+  localhost:50051 pb.OrderService/CreateOrder
+
+# Listar orders
+grpcurl -plaintext -d '{}' \
+  localhost:50051 pb.OrderService/ListOrders
 ```
 
-#### Criar Order
-```bash
-grpcurl -plaintext -d '{"price": 200.00, "tax": 20.00}' localhost:50051 pb.OrderService/CreateOrder
-```
+## 🚀 Instalação
 
-#### Listar Orders
-```bash
-grpcurl -plaintext -d '{}' localhost:50051 pb.OrderService/ListOrders
-```
+    - Clonar repositório 
+    $ git clone https://github.com/Luuan11/clean-architecture-go.git
 
-## 🧪 Testando com api.http
+    - Instalar dependências
+    $ go mod tidy
 
-O projeto inclui um arquivo `api.http` com exemplos de requisições. Se você usar o VS Code com a extensão REST Client, pode executar as requisições diretamente do editor.
+    - Compilar projeto
+    $ go build -o server ./cmd/server
 
-## 🗂️ Estrutura do Banco de Dados
+    - Executar
+    $ ./server
 
-### Tabela: orders
+---
 
-| Campo       | Tipo           | Descrição              |
-|-------------|----------------|------------------------|
-| id          | VARCHAR(36)    | UUID (Primary Key)     |
-| price       | DECIMAL(10,2)  | Preço base             |
-| tax         | DECIMAL(10,2)  | Taxa/Imposto           |
-| final_price | DECIMAL(10,2)  | Preço final calculado  |
-| created_at  | TIMESTAMP      | Data de criação        |
-| updated_at  | TIMESTAMP      | Data de atualização    |
-
-## 🛠️ Comandos Úteis (Make)
-
-```bash
-make help         # Mostra todos os comandos disponíveis
-make proto        # Gera código protobuf
-make deps         # Instala dependências
-make build        # Compila a aplicação
-make run          # Executa a aplicação
-make docker-up    # Sobe containers Docker
-make docker-down  # Para containers Docker
-make docker-logs  # Mostra logs
-make test         # Executa testes
-make clean        # Remove arquivos gerados
-```
-
-## 🔍 Verificando se está funcionando
-
-Após iniciar a aplicação, você deve ver mensagens como:
-
-```
-Successfully connected to database
-REST server listening on port 8080
-gRPC server listening on port 50051
-GraphQL server listening on port 8081
-GraphiQL available at http://localhost:8081/graphql
-```
-
-Teste rapidamente com:
-
-```bash
-# REST API
-curl -X POST http://localhost:8080/order \
-  -H "Content-Type: application/json" \
-  -d '{"price": 100, "tax": 10}'
-
-curl http://localhost:8080/order
-```
-
-## 📝 Notas
-
-- O banco de dados é criado automaticamente quando você executa `docker-compose up`
-- As migrações são executadas automaticamente na inicialização do container MySQL
-- O GraphiQL (interface web interativa) está disponível em http://localhost:8081/graphql
-- Para ambientes de produção, lembre-se de configurar senhas fortes e variáveis de ambiente apropriadas
-
-## 🤝 Contribuindo
-
-Sinta-se à vontade para contribuir com o projeto!
-
-## 📄 Licença
-
-Este projeto é livre para uso educacional e comercial.
+Made with 💜 by [Luan Fernando](https://www.linkedin.com/in/luan-fernando/).
