@@ -10,6 +10,21 @@ Content-Type: application/json
 ### REST API - List Orders
 GET http://localhost:8080/order
 
+### REST API - Get Order By ID
+GET http://localhost:8080/order/your-order-id-here
+
+### REST API - Update Order
+PUT http://localhost:8080/order/your-order-id-here
+Content-Type: application/json
+
+{
+  "price": 200.00,
+  "tax": 20.00
+}
+
+### REST API - Delete Order
+DELETE http://localhost:8080/order/your-order-id-here
+
 ### GraphQL - Create Order (Mutation)
 POST http://localhost:8081/graphql
 Content-Type: application/json
@@ -24,4 +39,28 @@ Content-Type: application/json
 
 {
   "query": "{ listOrders { id price tax final_price } }"
+}
+
+### GraphQL - Get Order By ID (Query)
+POST http://localhost:8081/graphql
+Content-Type: application/json
+
+{
+  "query": "{ getOrder(id: \"your-order-id-here\") { id price tax final_price } }"
+}
+
+### GraphQL - Update Order (Mutation)
+POST http://localhost:8081/graphql
+Content-Type: application/json
+
+{
+  "query": "mutation { updateOrder(id: \"your-order-id-here\", price: 250.00, tax: 25.00) { id price tax final_price } }"
+}
+
+### GraphQL - Delete Order (Mutation)
+POST http://localhost:8081/graphql
+Content-Type: application/json
+
+{
+  "query": "mutation { deleteOrder(id: \"your-order-id-here\") }"
 }

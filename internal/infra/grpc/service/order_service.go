@@ -9,17 +9,26 @@ import (
 
 type OrderService struct {
 	pb.UnimplementedOrderServiceServer
-	CreateOrderUseCase *usecase.CreateOrderUseCase
-	ListOrdersUseCase  *usecase.ListOrdersUseCase
+	CreateOrderUseCase  *usecase.CreateOrderUseCase
+	ListOrdersUseCase   *usecase.ListOrdersUseCase
+	GetOrderByIDUseCase *usecase.GetOrderByIDUseCase
+	UpdateOrderUseCase  *usecase.UpdateOrderUseCase
+	DeleteOrderUseCase  *usecase.DeleteOrderUseCase
 }
 
 func NewOrderService(
 	createOrderUseCase *usecase.CreateOrderUseCase,
 	listOrdersUseCase *usecase.ListOrdersUseCase,
+	getOrderByIDUseCase *usecase.GetOrderByIDUseCase,
+	updateOrderUseCase *usecase.UpdateOrderUseCase,
+	deleteOrderUseCase *usecase.DeleteOrderUseCase,
 ) *OrderService {
 	return &OrderService{
-		CreateOrderUseCase: createOrderUseCase,
-		ListOrdersUseCase:  listOrdersUseCase,
+		CreateOrderUseCase:  createOrderUseCase,
+		ListOrdersUseCase:   listOrdersUseCase,
+		GetOrderByIDUseCase: getOrderByIDUseCase,
+		UpdateOrderUseCase:  updateOrderUseCase,
+		DeleteOrderUseCase:  deleteOrderUseCase,
 	}
 }
 
@@ -62,3 +71,5 @@ func (s *OrderService) ListOrders(ctx context.Context, req *pb.ListOrdersRequest
 		Orders: pbOrders,
 	}, nil
 }
+
+

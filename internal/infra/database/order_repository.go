@@ -44,3 +44,66 @@ func (r *OrderRepository) FindAll() ([]*entity.Order, error) {
 
 	return orders, nil
 }
+
+func (r *OrderRepository) FindByID(id string) (*entity.Order, error) {
+	var order entity.Order
+	err := r.Db.QueryRow("SELECT id, price, tax, final_price, created_at, updated_at FROM orders WHERE id = ?", id).
+		Scan(&order.ID, &order.Price, &order.Tax, &order.FinalPrice, &order.CreatedAt, &order.UpdatedAt)
+	
+	if err == sql.ErrNoRows {
+		return nil, entity.ErrOrderNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return &order, nil
+}
+
+func (r *OrderRepository) Update(order *entity.Order) error {
+	stmt, err := r.Db.Prepare("UPDATE orders SET price = ?, tax = ?, final_price = ?, updated_at = ? WHERE id = ?")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	result, err := stmt.Exec(order.Price, order.Tax, order.FinalPrice, order.UpdatedAt, order.ID)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return entity.ErrOrderNotFound
+	}
+
+	return nil
+}
+
+func (r *OrderRepository) Delete(id string) error {
+	stmt, err := r.Db.Prepare("DELETE FROM orders WHERE id = ?")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	result, err := stmt.Exec(id)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return entity.ErrOrderNotFound
+	}
+
+	return nil
+}

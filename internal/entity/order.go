@@ -10,6 +10,7 @@ import (
 var (
 	ErrInvalidPrice = errors.New("invalid price")
 	ErrInvalidTax   = errors.New("invalid tax")
+	ErrOrderNotFound = errors.New("order not found")
 )
 
 type Order struct {
@@ -43,4 +44,20 @@ func NewOrder(price, tax float64) (*Order, error) {
 
 func (o *Order) CalculateFinalPrice() {
 	o.FinalPrice = o.Price + o.Tax
+}
+
+func (o *Order) Update(price, tax float64) error {
+	if price <= 0 {
+		return ErrInvalidPrice
+	}
+	if tax < 0 {
+		return ErrInvalidTax
+	}
+
+	o.Price = price
+	o.Tax = tax
+	o.CalculateFinalPrice()
+	o.UpdatedAt = time.Now()
+
+	return nil
 }
