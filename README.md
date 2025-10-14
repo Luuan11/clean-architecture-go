@@ -8,6 +8,8 @@
 
 ### Sistema de Gerenciamento de Pedidos com Clean Architecture
 
+<img width="1920" height="1080" alt="clean arc" src="https://github.com/user-attachments/assets/b2cf052e-9e03-44f9-9c6e-1ba5cfcf9a86" />
+
 ### 💬 Sobre: 
 API completa de gerenciamento de orders implementada em Go seguindo os princípios da Clean Architecture, oferecendo três interfaces de comunicação distintas:
 ```plaintext
